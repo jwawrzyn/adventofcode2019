@@ -6,11 +6,12 @@ namespace adventofcode2019
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            //Console.WriteLine("Hello World!");
 
 
-            Console.WriteLine("Day 1, Problem 1");
-            Console.WriteLine(day01.problem01.process());
+            Console.WriteLine("Day 3, Problem 1");
+            day03.problem01.process();
+            Console.WriteLine();
             // Keep the console window open in debug mode.
             Console.WriteLine("Press any key to exit.");
             System.Console.ReadKey();
