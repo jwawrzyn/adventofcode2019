@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace adventofcode.day05
 {
@@ -7,85 +8,91 @@ namespace adventofcode.day05
         public static void Run(){
             // for(int noun = 0; noun < 100;  noun ++){
                 // for(int verb = 0; verb < 100; verb ++){
-                    string result = calculate();
+                    int result = calculate();
                     int output = 0;
-                    int.TryParse(result, out output);
+                    //int.TryParse(result, out output);
 
                     // if(output == 19690720){
                     //     Console.WriteLine(string.Format("Noun: {0}, Verb: {1}", noun.ToString(), verb.ToString()));
-            Console.WriteLine(result);
+                    Console.WriteLine(result);
+                    Console.ReadLine();
                     // }
                 // }
             // }
         }
 
-        public static string calculate()
+        public static int calculate()
         {
 
-            string lines = System.IO.File.ReadAllText("day05_input.txt");
+            //string lines = System.IO.File.ReadAllText("day05_input.txt");
+            int[] numbers = System.IO.File.ReadAllText("day05_input.txt").Split(',').Select(i => int.Parse(i)).ToArray();
+            
+            int addr1, addr2, addr3 = 0;
+            int opcode = 0;
 
-            string[] inputList = lines.Split(",");
-
-            int position = 0;
-            string op = "1";
-            op = inputList[position];
+            int index = 0;
 
             
 
-            while(op != "99"){
-                int inputOne = 0;
-                int inputTwo = 0;
-                
-                int positionOne = 0;
-                int positionTwo = 0;
-                int positionThree = 0;
-                
-                string[] operatorType;
+            Console.Write("Length: ");
+            Console.WriteLine(numbers.Length);
 
-                if(op.Length > 2){
-                    operatorType = parseOperator(op);
+            while(numbers[index] != 99){
+                int number = numbers[index];
+                opcode = numbers[index] % 10;
+
+                Console.WriteLine(opcode);
+                
+                int paramMode1 = (opcode / 100) % 10;
+                int paramMode2 = (opcode / 1000) % 10;
+
+                int input1 = 0, input2 = 0, input3 = 0;
+
+                addr1 = numbers[index + 1];
+                input1 = (paramMode1 == 1) ? addr1 : numbers[addr1];
+
+                if(opcode == 1 || opcode == 2){
+                    addr2 = numbers[index + 2];
+    
+                    input2 = (paramMode2 == 2) ? addr2 : numbers[addr2];
+                    input3 = numbers[index + 3];
                 }
 
-                int.TryParse(inputList[position + 1], out positionOne);
-                int.TryParse(inputList[position + 2], out positionTwo);
-                int.TryParse(inputList[position + 3], out positionThree);
-
-                int.TryParse(inputList[positionOne], out inputOne);
-                int.TryParse(inputList[positionTwo], out inputTwo);
-                //int.TryParse(inputList[positionThree], out inputThree);
                 int result = 0;
-                switch(op){
-                    case "1" :
-                        result = inputOne + inputTwo;
-                        inputList[positionThree] = result.ToString();
-                        position += 4;
+                switch(opcode){
+                    case 1 :
+                        result = input1 + input2;
+                        Console.Write("Position 3");
+                        Console.WriteLine(input3);
+                        numbers[input3] = result;
+                        index += 4;
                         break;
-                    case "2" :
-                        result = inputOne * inputTwo;
-                        inputList[positionThree] = result.ToString();
-                        position += 4;
+                    case 2 :
+                        result = input1 * input2;
+                        numbers[input3] = result;
+                        index += 4;
                         break;
-                    case "3" : 
-                        string userInput = Console.ReadLine();
+                    case 3 : 
+                        int userInput = 1; //Console.ReadLine();
                         
-                        inputList[positionOne] = userInput;
-                        position += 2;
+                        numbers[addr1] = userInput;
+                        index += 2;
                         break;
-                    case "4" :
-                        Console.WriteLine(inputList[positionOne]);
-                        position += 2;
+                    case 4 :
+                        Console.WriteLine(numbers[addr1]);
+                        index += 2;
                         break;
                 }
                                 
                 
-                if(position > inputList.Length){
-                    op = "99";
+                if(index > numbers.Length){
+                    opcode = 99;
                 }
-                op = inputList[position];
+                opcode = numbers[index];
             }
 
-            System.IO.File.WriteAllLines("day02_output.txt",inputList);
-            return inputList[0];
+            //System.IO.File.WriteAllLines("day02_output.txt",inputList);
+            return numbers[0];
         }
 
 /*
