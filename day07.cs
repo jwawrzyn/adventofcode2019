@@ -1,37 +1,127 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace adventofcode2019.day07
 {
-    public class intcode
-    {
+    public class program {
         public static void Run()
         {
-            // for(int noun = 0; noun < 100;  noun ++){
-            //     for(int verb = 0; verb < 100; verb ++){
-            string result = calculate();
-            int output = 0;
-            int.TryParse(result, out output);
-            Console.WriteLine(result);
-            // if(output == 19690720){
-            //     Console.WriteLine(string.Format("Noun: {0}, Verb: {1}", noun.ToString(), verb.ToString()));
-            //     Console.WriteLine((100 * noun + verb).ToString());
-            // }
-            //     }
-            // }
+            long[] input = {9,7,8,5,6};
+            long maxThrust = -1;
+
+            List<long[]> firstPerms = GetPermutations(new List<long> { 0, 1, 2, 3, 4 });
+            List<long[]> secondPerms = GetPermutations(new List<long> { 5, 6, 7, 8, 9 });
+
+            Queue<long> outputs;
+            //secondPerms.Clear();
+            //secondPerms.Add(input);
+            foreach(long[] perm in secondPerms){
+                int totalThurst = 0;
+                int result = 0;
+                bool halt = false;
+                outputs = new Queue<long>();
+                intcode process1 = new intcode();
+                intcode process2 = new intcode();
+                intcode process3 = new intcode();
+                intcode process4 = new intcode();
+                intcode process5 = new intcode();
+
+                process1.initialize();
+                process2.initialize();
+                process3.initialize();
+                process4.initialize();
+                process5.initialize();
+                
+            
+                process1.process(new int[] {(int)perm[0], 0});
+                int result1 = process1.output;
+                process2.process(new int[] {(int)perm[1], result1} );
+                int result2 = process2.output;
+                process3.process(new int[] {(int)perm[2], result2});
+                int result3 = process3.output;
+                process4.process(new int[] {(int)perm[3], result3});
+                int result4 = process4.output;
+                process5.process(new int[] {(int)perm[4], result4});
+                int result5 = process5.output;
+                do {
+                    int stopProcessing = 0;
+                    stopProcessing = process1.process(new int[] {result5});
+                    result1 = process1.output;
+                     stopProcessing = process2.process(new int[] {result1});
+                    result2 = process2.output;
+                stopProcessing = process3.process(new int[] {result2});
+                    result3 = process3.output;
+                stopProcessing = process4.process(new int[] {result3});
+                    result4 = process4.output;
+                stopProcessing = process5.process(new int[] {result4});
+                    result5 = process5.output;
+
+
+                    halt = stopProcessing > 0;
+                    
+                    totalThurst = result5;
+                    //Console.WriteLine(String.Format("Output 5 {0}", process5.output));
+                }while(!halt);
+
+                Console.WriteLine(string.Format("Max thrust {0}", totalThurst));
+                if(totalThurst > maxThrust){
+                    maxThrust = totalThurst;
+                }
+            }
+            Console.WriteLine(maxThrust);
+        }
+        private static List<long[]> GetPermutations(List<long> things, List<long> current = null)
+        {
+            List<long[]> res = new List<long[]>();
+            if(current == null)
+            {
+                current = new List<long>();
+            }
+            if (things.Count > 0)
+            {
+                foreach (long t in things)
+                {
+                    List<long> newP = new List<long>(current);
+                    newP.Add(t);
+
+                    List<long> newThings = new List<long>(things);
+                    newThings.Remove(t);
+                    res.AddRange(GetPermutations(newThings, newP));
+                }
+            }
+            else
+            {
+                res.Add(current.ToArray());
+            }
+
+            return res;
         }
 
-        public static string calculate()
-        {
 
+    }
+    public class intcode
+    {
+        public int index {get; set;}
+        public int output {get; set;}
+        public bool halt {get; set;}
+        public int[] numbers {get; set;}
+        public void initialize(){
             string lines = System.IO.File.ReadAllText("day07_input.txt");
 
-            int[] numbers = lines.Split(",").Select(i => int.Parse(i)).ToArray();
+            numbers = lines.Split(",").Select(i => int.Parse(i)).ToArray();
 
-            int index = 0;
+        }
+        public int process(int[] signals)
+        {
+          
+            //int index = 0;
             int opcode, number, paramMode1, paramMode2;
 
+            int signalPosition = 0;
+
             number = numbers[index];
+            halt = false;
             //numbers[1] = noun;
             //numbers[2] = verb;
             while (number != 99)
@@ -74,25 +164,24 @@ namespace adventofcode2019.day07
 
                     case 3:
                         addr1 = numbers[index + 1];
-                        int input = 5;//1;
-                        numbers[addr1] = input;
+                        
+                        numbers[addr1] = signals[signalPosition];
+                        signalPosition ++;
                         index += 2;
                         break;
                     case 4:
                         addr1 = numbers[index + 1];
-                        Console.WriteLine(string.Format("Output code: {0}", numbers[addr1]));
-                        if (numbers[index + 2] == 99)
-                        {
-                            return numbers[addr1].ToString();
-                        }
+                        //Console.WriteLine(string.Format("Output code: {0}", numbers[addr1]));
+                        output = numbers[addr1];
                         index += 2;
-                        break;
+                        return 0;
                 }
 
                 number = numbers[index];
+                if(number == 99) halt = true;
             }
 
-            return numbers[0].ToString();
+            return 1;
         }
 
         static int handleOpCode(int opcode, int value1, int value2)
@@ -115,6 +204,7 @@ namespace adventofcode2019.day07
 
             return false;
         }
+
     }
 
 
