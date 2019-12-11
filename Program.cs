@@ -10,7 +10,7 @@ namespace adventofcode2019
 
 
             //Console.WriteLine("Day 3, Problem 1");
-            adventofcode2019.day07.program.Run();
+            adventofcode2019.day08.problem01.Run();
             Console.WriteLine();
             // Keep the console window open in debug mode.
             Console.WriteLine("Press any key to exit.");
