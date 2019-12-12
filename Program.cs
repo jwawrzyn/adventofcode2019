@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace adventofcode2019
 {
@@ -6,15 +8,11 @@ namespace adventofcode2019
     {
         static void Main(string[] args)
         {
-            //Console.WriteLine("Hello World!");
+            //day04.problem01.Run();
+            // day05.problem01.Run();
+            // day05.test.Program.Run();
+            day09.longcode.Run();
 
-
-            //Console.WriteLine("Day 3, Problem 1");
-            adventofcode2019.day08.problem01.Run();
-            Console.WriteLine();
-            // Keep the console window open in debug mode.
-            Console.WriteLine("Press any key to exit.");
-            System.Console.ReadKey();
         }
     }
 }
