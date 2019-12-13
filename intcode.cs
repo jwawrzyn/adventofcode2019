@@ -24,7 +24,7 @@ namespace adventofcode2019
         {
 
             //int index = 0;
-            long opcode, number, paramMode1, paramMode2;
+            long opcode, number, paramMode1, paramMode2, paramMode3;
 
             int signalPosition = 0;
 
@@ -36,14 +36,13 @@ namespace adventofcode2019
                 opcode = number % 10;
 
                 long addr1 = 0, addr2 = 0, addr3 = 0;
-                long input1 = 0, input2 = 0, result = 0;
+                long input1 = 0, input2 = 0, input3= 0, result = 0;
 
                 addr1 = numbers[index + 1];
-                addr2 = numbers[index + 2];
-                
 
                 paramMode1 = (number / 100) % 10;
                 paramMode2 = (number / 1000) % 10;
+                paramMode3 = (number / 10000) % 10;
 
                 switch (opcode)
                 {
@@ -53,40 +52,44 @@ namespace adventofcode2019
                     case 6:
                     case 7:
                     case 8:
+                        addr2 = numbers[index + 2];
                         addr3 = numbers[index + 3];
 
                         input1 = getValue(addr1, paramMode1);
                         input2 = getValue(addr2, paramMode2);
+                        input3 = getValue(addr3, paramMode3, true);
                         if (opcode != 5 && opcode != 6)
                         {
 
                             result = handleOpCode(opcode, input1, input2);
                             index += 4;
-                            writeValue(addr3, result);
+                            writeValue(input3, result);
                         }
                         else
                         {
+                            input3 = getValue(addr3, paramMode3);
                             index = (int)(shouldJump(opcode, input1) ? input2 : (index + 3));
                         }
 
                         break;
 
                     case 3:
-                        input1 = getValue(addr1, paramMode1);
-
+                        input1 = getValue(addr1, paramMode1, true);
+                        
                         writeValue(input1, signals[signalPosition]);
                         signalPosition++;
                         index += 2;
                         break;
                     case 4:
+                        
                         input1 = getValue(addr1, paramMode1);
-                        //Console.WriteLine(string.Format("Output code: {0}", numbers[addr1]));
+                        
                         output = input1;
                         index += 2;
                         return 0;
                     case 9:
                         
-                        relativeBase += (int)getValue(addr1, 1);
+                        relativeBase += (int)getValue(addr1, paramMode1);
                         index += 2;
                         break;
                 }
@@ -119,21 +122,25 @@ namespace adventofcode2019
             return false;
         }
 
-        private long getValue(long address, long paramMode)
+        private long getValue(long address, long paramMode, bool writeMode = false)
         {
             long value = 0;
 
             switch (paramMode)
             {
                 case 0:
-                    value = address > numbers.Count ? 0 : numbers[(int)address];
+                    value = address >= numbers.Count ? 0 : numbers[(int)address];
                     break;
                 case 1:
                     value = address;
                     break;
                 case 2:
-                    int newAddress = relativeBase + (int)address;
-                    value = newAddress > numbers.Count ? 0 : numbers[newAddress];
+                    if(writeMode){
+                        value = relativeBase + (int)address;
+                    }else{
+                        int newAddress = relativeBase + (int)address;
+                        value = newAddress >= numbers.Count ? 0 : numbers[newAddress];
+                    }
                     break;
             }
 
@@ -144,21 +151,15 @@ namespace adventofcode2019
         {
             if (address > numbers.Count)
             {
-                for (int x = numbers.Count; x < address; x++)
+                for (int x = numbers.Count; x <= address; x++)
                 {
                     numbers.Add(0);
                 }
             }
 
-            try
-            {
                 numbers[(int)address] = value;
                 return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
+
         }
 
     }
